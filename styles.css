@@ -1,0 +1,87 @@
+:root {
+  /* Deep Forest/Emerald Base */
+  --bg-deep: #061109;      
+  --card-bg: rgba(20, 30, 24, 0.8); 
+  --text-main: #fefce8;    /* Warm Cream White */
+  --text-muted: #a7adba;   
+  --accent: #fbbf24;       /* Golden Amber */
+  --secondary: #10b981;    /* Emerald Green */
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  background-image: radial-gradient(circle at 50% -20%, #14532d, transparent); /* Subtle Green Glow at top */
+}
+
+/* High Contrast Accent Text */
+.accent-text {
+  color: var(--accent) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Glass Card with a "Greenish" tint */
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 252, 189, 0.1); /* Subtle Emerald Border */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+/* Night Theme - Sunset Rose & Deep Purple */
+.night-theme {
+  --bg-deep: #1a0b16;      /* Deep Wine/Black */
+  --accent: #f472b6;       /* Rose Pink */
+  --secondary: #fb923c;    /* Sunset Orange */
+  background-image: radial-gradient(circle at 50% -20%, #4c0519, transparent);
+}
+
+.night-theme .glass-card {
+  border-color: rgba(244, 114, 182, 0.2);
+}
+
+.pack-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.3s ease;
+}
+
+.pack-item:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+
+// pang transition ng image
+#img1, #img2, #img3, #img4 {
+    transition: opacity 0.4s ease-in-out, transform 0.5s ease;
+}
+
+#img1:hover, #img2:hover, #img3:hover, #img4:hover {
+    filter: saturate(1.1);
+    transform: scale(1.01); /* Very subtle zoom */
+    border-color: rgba(96, 165, 250, 0.5); /* Blue glow border */
+}
+
+.parallax {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+  transition: background-image 0.8s ease-in-out;
+}
+
+/* for mobile to */
+@media (max-width: 768px) {
+  .parallax {
+    background-attachment: scroll;
+  }
+}
