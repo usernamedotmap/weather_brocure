@@ -1,5 +1,6 @@
+/* vairbale css to beh */
 :root {
-  /* Deep Forest/Emerald Base */
+ 
   --bg-deep: #061109;      
   --card-bg: rgba(20, 30, 24, 0.8); 
   --text-main: #fefce8;    /* Warm Cream White */
@@ -8,10 +9,17 @@
   --secondary: #10b981;    /* Emerald Green */
 }
 
-body {
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
   background-color: var(--bg-deep);
   color: var(--text-main);
-  background-image: radial-gradient(circle at 50% -20%, #14532d, transparent); /* Subtle Green Glow at top */
+  background-image: radial-gradient(circle at 50% -20%, #14532d, transparent);
+}
+
+/* Smooth scrolling */ 
+html {
+  scroll-behavior: smooth;
 }
 
 /* High Contrast Accent Text */
@@ -26,15 +34,21 @@ body {
 .glass-card {
   background: var(--card-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(167, 252, 189, 0.1); /* Subtle Emerald Border */
+  border: 1px solid rgba(167, 252, 189, 0.1);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(167, 252, 189, 0.3);
+  transform: translateY(-2px);
 }
 
 /* Night Theme - Sunset Rose & Deep Purple */
 .night-theme {
-  --bg-deep: #1a0b16;      /* Deep Wine/Black */
-  --accent: #f472b6;       /* Rose Pink */
-  --secondary: #fb923c;    /* Sunset Orange */
+  --bg-deep: #1a0b16;
+  --accent: #f472b6;
+  --secondary: #fb923c;
   background-image: radial-gradient(circle at 50% -20%, #4c0519, transparent);
 }
 
@@ -42,6 +56,11 @@ body {
   border-color: rgba(244, 114, 182, 0.2);
 }
 
+.night-theme .glass-card:hover {
+  border-color: rgba(244, 114, 182, 0.4);
+}
+
+/* Packing items styling */
 .pack-item {
   background: rgba(255, 255, 255, 0.05);
   padding: 6px 10px;
@@ -58,30 +77,237 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
-
-// pang transition ng image
+/* Image transitions */
 #img1, #img2, #img3, #img4 {
-    transition: opacity 0.4s ease-in-out, transform 0.5s ease;
+  transition: opacity 0.4s ease-in-out, transform 0.5s ease, filter 0.3s ease;
 }
 
 #img1:hover, #img2:hover, #img3:hover, #img4:hover {
-    filter: saturate(1.1);
-    transform: scale(1.01); /* Very subtle zoom */
-    border-color: rgba(96, 165, 250, 0.5); /* Blue glow border */
+  filter: saturate(1.1) brightness(1.05);
+  transform: scale(1.02);
 }
 
+/* Parallax background */
 .parallax {
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  
   transition: background-image 0.8s ease-in-out;
 }
 
-/* for mobile to */
+/* Glow text effect */
+.glow-text {
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.3),
+               0 0 40px rgba(251, 191, 36, 0.2);
+}
+
+/* Custom scrollbar for navigation */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile-specific improvements */
 @media (max-width: 768px) {
+  /* Disable parallax on mobile for better performance */
+  .parallax {
+    background-attachment: scroll;
+    background-position: center center;
+  }
+
+  /* Ensure text is readable on smaller screens */
+  body {
+    font-size: 14px;
+  }
+
+  
+  button, .glass-card {
+    min-height: 44px;
+  }
+
+
+  #map {
+    touch-action: pan-x pan-y;
+    position: relative;
+    z-index: 1;
+  }
+
+
+  #map .leaflet-container {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  #map .leaflet-tile-container {
+    pointer-events: auto;
+  }
+
+
+  * {
+    animation-duration: 0.3s !important;
+  }
+
+
+  .glass-card {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Small mobile devices (iPhone SE, etc) */
+@media (max-width: 375px) {
+  #mainTitle {
+    font-size: 2.5rem !important;
+  }
+
+  .glass-card {
+    padding: 0.75rem !important;
+  }
+
+  #img1, #img2, #img3, #img4 {
+    height: 150px !important;
+  }
+}
+
+/* Tablet landscape */
+@media (min-width: 768px) and (max-width: 1024px) {
   .parallax {
     background-attachment: scroll;
   }
 }
+
+/* Large screens */
+@media (min-width: 1440px) {
+  body {
+    font-size: 22px;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .parallax {
+    background-attachment: scroll;
+  }
+}
+
+/* Loading state for images */
+img {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
+}
+
+/* Attraction buttons - better mobile touch */
+#attractionList button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#attractionList button:active {
+  transform: scale(0.98);
+}
+
+/* Custom Leaflet marker */
+.custom-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.marker-dot {
+  width: 16px;
+  height: 16px;
+  background-color: #60a5fa;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.8),
+              0 0 40px rgba(96, 165, 250, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  animation: marker-pulse 2s infinite;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}
+
+@keyframes marker-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.8),
+                0 0 40px rgba(96, 165, 250, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+    box-shadow: 0 0 30px rgba(96, 165, 250, 1),
+                0 0 60px rgba(96, 165, 250, 0.6);
+  }
+}
+
+/* Leaflet map container fixes */
+#map {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.leaflet-container {
+  background: rgba(0, 0, 0, 0.3);
+  font-family: inherit;
+}
+
+.leaflet-tile {
+  filter: brightness(0.9);
+}
+
+/* Fix Leaflet attribution on mobile */
+.leaflet-control-attribution {
+  display: none;
+}
+
+.leaflet-control-zoom {
+  display: none;
+}
+
+/* Ensure marker pane is properly positioned */
+.leaflet-marker-pane {
+  z-index: 600;
+}
+
+.leaflet-marker-icon {
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Better focus states for accessibility */
+button:focus-visible,
+.glass-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Improve text contrast on dark backgrounds */
+@media (prefers-contrast: high) {
+  :root {
+    --text-main: #ffffff;
+    --text-muted: #d1d5db;
+  }
+
+  .glass-card {
+    border: 2px solid rgba(167, 252, 189, 0.3);
+  }
+}
+
+
+/* hirap talaga gawing reponseiveness sa mobile huhuhuhu */

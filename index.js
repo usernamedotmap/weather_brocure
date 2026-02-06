@@ -1,5 +1,7 @@
 AOS.init({ duration: 1000, once: false });
 
+// mga data 
+
 const destinations = {
   kyoto: {
     name: "Kyoto",
@@ -184,7 +186,7 @@ const destinations = {
         name: "Vatican City",
         lat: 41.9029,
         lon: 12.4534,
-        desc: "Home of the Pope and St. Peter’s Basilica.",
+        desc: "Home of the Pope and St. Peter's Basilica.",
       },
       {
         name: "Trevi Fountain",
@@ -196,48 +198,85 @@ const destinations = {
   },
 };
 
-// out sidde the function to make it do once
-let map = L.map("map", {
-  zoomControl: false,
-  attributionControl: false,
-}).setView([9.83, 118.73], 13); // Default to Palawan
+// para sa map at bilog
+let map;
+let marker;
 
-// Use a "Dark Mode" tile provider to match your UI (thank you)
-L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-).addTo(map);
+// function ng map
+function initializeMap() {
+  // Initialize map
+  map = L.map("map", {
+    zoomControl: false,
+    attributionControl: false,
+    scrollWheelZoom: true,
+    dragging: true,
+    touchZoom: true,
+  }).setView([9.83, 118.73], 13); // Default to Palawan
 
-const customIcon = L.divIcon({
-  className: "custom-div-icon",
-  html: "<div style='background-color: #60a5fa; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 15px #60a5fa;'></div>",
-  iconSize: [12, 12],
-  iconAnchor: [6, 6],
+  // Use a "Dark Mode" tile provider to match your UI omkie
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    {
+      maxZoom: 19,
+    }
+  ).addTo(map);
+
+  // ito na sa bilog marker
+  marker = L.marker([9.83, 118.73]).addTo(map);
+  
+  // Update marker icon
+  updateMarkerIcon();
+
+  // Fix map size issues
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 100);
+}
+
+// Function to update marker icon
+function updateMarkerIcon() {
+  if (marker) {
+    const customIcon = L.divIcon({
+      className: "custom-leaflet-marker",
+      html: "<div class='marker-dot'></div>",
+      iconSize: [20, 20],
+      iconAnchor: [10, 10], // Center of the 20x20 icon
+      popupAnchor: [0, -10]
+    });
+    marker.setIcon(customIcon);
+  }
+}
+
+// Handle window resize
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (map) {
+      map.invalidateSize();
+    }
+  }, 250);
 });
-
-let marker = L.marker([9.83, 118.73], { icon: customIcon }).addTo(map);
 
 async function changeDestination(cityKey) {
   const city = destinations[cityKey];
 
- if (!city) return;
+  if (!city) return;
 
-   
-    if (window.innerWidth < 768) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  // Scroll to top on mobile when destination changes
+  if (window.innerWidth < 768) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   document.getElementById("hero").style.backgroundImage = `url('${city.hero}')`;
   document.getElementById("mainTitle").innerText = city.name;
   document.getElementById("subTitle").innerText = `"${city.quote}"`;
   document.getElementById("description").innerText = city.desc;
-  document.getElementById("img1").src = city.thumb1;
-  document.getElementById("img2").src = city.thumb2;
-  document.getElementById("img3").src = city.thumb3;
-  document.getElementById("img4").src = city.thumb4;
-
+  
   // Update Food info
   document.getElementById("foodName").innerText = city.food;
 
-  // for transition ng image yah
+  // Image transition effect
   const imgElements = [
     document.getElementById("img1"),
     document.getElementById("img2"),
@@ -248,7 +287,6 @@ async function changeDestination(cityKey) {
   imgElements.forEach((img) => (img.style.opacity = "0"));
 
   setTimeout(() => {
-    const city = destinations[cityKey];
     imgElements[0].src = city.thumb1;
     imgElements[1].src = city.thumb2;
     imgElements[2].src = city.thumb3;
@@ -257,35 +295,51 @@ async function changeDestination(cityKey) {
     imgElements.forEach((img) => (img.style.opacity = "1"));
   }, 500);
 
-  // attractions
+  // attraction list na dito
   const attractionsContainer = document.getElementById("attractionList");
   attractionsContainer.innerHTML = "";
 
   city.attractions.forEach((place) => {
     const buttonAttraction = document.createElement("button");
     buttonAttraction.className =
-      "w-full text-left  glass-card p-3 rounded-xl hover:border-blue-400 transition flex justify-between items-center group";
+      "w-full text-left glass-card p-3 rounded-xl hover:border-blue-400 transition flex justify-between items-center group";
     buttonAttraction.innerHTML = `
       <div>
-      <p class="text-md font-bold text-white group-hover:text-blue-300">${place.name}</p>
-      <p class="text-[12px] text-gray-400">${place.desc}</p>
+        <p class="text-sm md:text-md font-bold text-white group-hover:text-blue-300">${place.name}</p>
+        <p class="text-[11px] md:text-[12px] text-gray-400">${place.desc}</p>
       </div>
     `;
 
     buttonAttraction.onclick = () => {
-      map.flyTo([place.lat, place.lon], 16, { duration: 2 });
-      marker.setLatLng([place.lat, place.lon]);
+      if (map && marker) {
+        map.flyTo([place.lat, place.lon], 16, { duration: 2 });
+        marker.setLatLng([place.lat, place.lon]);
+      }
     };
 
     attractionsContainer.appendChild(buttonAttraction);
   });
 
-  map.flyTo([city.lat, city.lon], 10, {
-    animation: true,
-    duration: 1.5,
-  });
+  // Update map if it exists
+  if (map && marker) {
+    // First set the marker position
+    marker.setLatLng([city.lat, city.lon]);
+    
+    // Then fly to the location
+    map.flyTo([city.lat, city.lon], 10, {
+      animation: true,
+      duration: 1.5,
+    });
 
-  marker.setLatLng([city.lat, city.lon]);
+    // Force map to recalculate size after layout changes
+    setTimeout(() => {
+      if (map) {
+        map.invalidateSize();
+        // Ensure marker is still at correct position after resize
+        marker.setLatLng([city.lat, city.lon]);
+      }
+    }, 100);
+  }
 
   // Fetch Data
   fetchWeather(city.lat, city.lon);
@@ -316,7 +370,7 @@ async function fetchCurrency(targetCurrency, fullName, foodLocalPrice) {
     rateDiv.innerText = `${rate.toFixed(2)}`;
     nameDiv.innerText = fullName;
 
-    // calulate the php to food to other calocohan
+    // Calculate the PHP to food to other currency conversion
     const costInPHP = Math.round(foodLocalPrice / rate);
     foodDiv.innerText = `₱${costInPHP.toLocaleString()}`;
   } catch (err) {
@@ -338,7 +392,7 @@ async function fetchWeather(lat, lon) {
     );
     const data = await response.json();
 
-    // wall clock yah
+    // LOCAL TIME PERO ANO YUNG TIMEZONE? KUNG DI KO ALAM YUNG TIMEZONE PAANO KO MALALAMAN YUNG LOCAL TIME?
     const destinationDate = new Date(
       new Date().toLocaleString("en-US", { timeZone: data.timezone }),
     );
@@ -352,8 +406,7 @@ async function fetchWeather(lat, lon) {
 
     timeDiv.innerText = `Local Time: ${localTimeDisplay}`;
 
-    // night and other kolokoy theme
-
+    // Day/Night theme switch based on local time TAMA BA YUNG 6 AM TO 6 PM? KUNG 6 PM NA BA NIGHT NA? O 7 PM NA? O 5 AM PA LANG DAY NA?
     const isNight = currentHour >= 18 || currentHour <= 6;
 
     const activeCityName = document
@@ -363,7 +416,7 @@ async function fetchWeather(lat, lon) {
 
     if (isNight) {
       document.body.classList.add("night-theme");
-      adviceDiv.innerText = adviceDiv.innerText = cityData
+      adviceDiv.innerText = cityData
         ? cityData.nightVibe
         : "Enjoy the evening glow.";
     } else {
@@ -373,12 +426,12 @@ async function fetchWeather(lat, lon) {
         : "A beautiful day for discovery.";
     }
 
-    // Weather Info sah
+    // Weather Info NA DITO 
     const temp = Math.round(data.current_weather.temperature);
     const code = data.current_weather.weathercode;
     tempDiv.innerText = `${temp}°C`;
 
-    // Sunset Info (Format to HH:MM)
+    // Sunset Info (Format to HH:MM) TAMA BA YUNG 60 MINUTES BEFORE SUNSET PARA SA GOLDEN HOUR? O 90 MINUTES? O 30 MINUTES?
     const sunsetRaw = data.daily.sunset[0];
     const sunsetDate = new Date(sunsetRaw);
     const goldenHourStart = new Date(sunsetDate.getTime() - 60 * 60 * 1000);
@@ -387,10 +440,10 @@ async function fetchWeather(lat, lon) {
 
     let statusText = "";
     if (now < goldenHourStart) {
-      const diffMiliseconds = goldenHourStart - now;
-      const diffHours = Math.floor(diffMiliseconds / (1000 * 60 * 60));
+      const diffMilliseconds = goldenHourStart - now;
+      const diffHours = Math.floor(diffMilliseconds / (1000 * 60 * 60));
       const diffMinutes = Math.floor(
-        (diffMiliseconds % (1000 * 60 * 60)) / (1000 * 60),
+        (diffMilliseconds % (1000 * 60 * 60)) / (1000 * 60),
       );
       statusText = `Starts in ${diffHours}h ${diffMinutes}m`;
     } else if (now >= goldenHourStart && now <= sunsetDate) {
@@ -406,20 +459,21 @@ async function fetchWeather(lat, lon) {
       minute: "2-digit",
     });
 
-    // Packing Logic hree hehehee
+    // Packing Logic
     let pack = "Essentials: Camera & Self";
     if (temp > 26) pack = "Pack: Sunscreen & Swimwear";
     if (temp < 15) pack = "Pack: Light Jacket & Scarf";
     if (code > 50) pack = "Pack: Umbrella & Raincoat";
 
-    // adviceDiv.innerText =
-    //   temp > 22
-    //     ? "Nice weather for exploring urself."
-    //     : "kinda cold today, perfect coffee for hypertension.";
     packDiv.innerText = pack;
   } catch (err) {
     tempDiv.innerText = "Error";
+    console.error("Weather fetch error:", err);
   }
 }
 
-window.onload = () => changeDestination("palawan");
+// Initialize on page load
+window.onload = () => {
+  initializeMap();
+  changeDestination("palawan");
+};
